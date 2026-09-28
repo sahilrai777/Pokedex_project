@@ -1,0 +1,20 @@
+.pokemon-list-wrapper {
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pokemon-wrapper {
+  display: grid;
+
+  /* EXACTLY 5 POKEMON IN ONE ROW */
+  grid-template-columns: repeat(5, 200px);
+
+  /* Cards ke beech gap */
+  gap: 20px;
+}
+
+.contoles button {
+  padding: 1rem;
+}
