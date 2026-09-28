@@ -13,44 +13,55 @@ import "./PokemonList.css";
 
 function PokemonList() {
 
-    const [pokemonList, setpokemonList] = useState([]);
-    // pokemonList ke andar hum API se aaye Pokemon ka data store karenge
-    // starting mein empty array hai []
+    // const [pokemonList, setpokemonList] = useState([]);
+    // // pokemonList ke andar hum API se aaye Pokemon ka data store karenge
+    // // starting mein empty array hai []
 
-    const [isLoading, setIsLoading] = useState(true);
-    // Ye check karega ki data abhi load ho raha hai ya nahi
-    // starting mein true hai, matlab loading chal rahi hai
-
-
-    const [pokedexUrl, setPokedexUrl] = useState(
-        "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20"
-    );
-    // Ye current API URL ko store karega
-    // Is URL se 20 Pokemon ki list milegi
-    // setPokedexUrl ki help se hum Next/Previous par URL change karenge
+    // const [isLoading, setIsLoading] = useState(true);
+    // // Ye check karega ki data abhi load ho raha hai ya nahi
+    // // starting mein true hai, matlab loading chal rahi hai
 
 
-    const [prevurl, setPrevurl] = useState();
-    // API se previous page ka URL yahan store hoga
-    // Agar previous page nahi hai to ye undefined hoga
+    // const [pokedexUrl, setPokedexUrl] = useState(
+    //     "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20"
+    // );
+    // // Ye current API URL ko store karega
+    // // Is URL se 20 Pokemon ki list milegi
+    // // setPokedexUrl ki help se hum Next/Previous par URL change karenge
 
 
-    const [nexturl, setNexturl] = useState();
-    // API se next page ka URL yahan store hoga
-    // Agar next page nahi hai to ye undefined hoga
+    // const [prevurl, setPrevurl] = useState();
+    // // API se previous page ka URL yahan store hoga
+    // // Agar previous page nahi hai to ye undefined hoga
+
+
+    // const [nexturl, setNexturl] = useState();
+    // // API se next page ka URL yahan store hoga
+    // // Agar next page nahi hai to ye undefined hoga
+
+
+    const[pokemonListState, setpokemonListState]= useState({
+       pokemonList:[],
+       isLoading: true,
+       pokedexUrl: "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20",
+       nexturl: '',
+       prevurl: '',
+
+    })
 
 
     async function downloadPokemons() {
 
-        setIsLoading(true);
+        // setIsLoading(true);
+        setpokemonListState({...pokemonListState, isLoading:true});
         // Jab bhi Pokemon download honge, loading true kar do
 
 
-        const response = await axios.get(pokedexUrl);
+        const response = await axios.get(pokemonListState.pokedexUrl);
         // Ye current pokedexUrl par API request bhej raha hai
         // await ka matlab API ka response aane tak wait karo
 
-
+ 
         //THIS DOWNLOAD LIST OF 20 POKEMONS
         // Ye API se 20 Pokemon ki basic list download karta hai
 
@@ -68,11 +79,18 @@ function PokemonList() {
         // API ka complete response console mein dekhne ke liye
 
 
-        setPrevurl(response.data.previous);
+        // setpokemonListState();
         // API se previous page ka URL nikal kar prevurl mein store kar rahe hain
 
 
-        setNexturl(response.data.next);
+        setpokemonListState((state)=>({
+            ...state, 
+
+            nexturl:response.data.next,
+             prevurl:response.data.previous
+             
+
+        }));
         // API se next page ka URL nikal kar nexturl mein store kar rahe hain
 
 
@@ -151,11 +169,12 @@ function PokemonList() {
         // Final clean Pokemon data console mein check karne ke liye
 
 
-        setpokemonList(pokeListResult);
+        setpokemonListState((state)=>({
+            ...state,
+            pokemonList:pokeListResult,
+             isLoading:false
+            }));
         // Ab final Pokemon data ko pokemonList state mein store kar rahe hain
-
-
-        setIsLoading(false);
         // Data load ho gaya, isliye loading ko false kar diya
     }
 
@@ -164,7 +183,7 @@ function PokemonList() {
         downloadPokemons();
         // Component load hone par downloadPokemons() function chalega
 
-    }, [pokedexUrl]);
+    }, [pokemonListState.pokedexUrl]);
     // Jab bhi pokedexUrl change hoga
     // downloadPokemons() dobara chalega
     // Isi wajah se Next/Previous button kaam karega
@@ -176,11 +195,11 @@ function PokemonList() {
 
                 <div className="pokemon-wrapper">
 
-                    {isLoading
+                    {pokemonListState.isLoading
                         ? "Loading...."
                         // Agar isLoading true hai to Loading.... show hoga
 
-                        : pokemonList.map((p) => (
+                        :pokemonListState.pokemonList.map((p) => (
                             <Pokemon
     name={p.name}
     // Pokemon ka name Pokemon component ko bhej rahe hain
@@ -202,30 +221,34 @@ function PokemonList() {
 
                 <div className="controles">
 
-                    <button
-                        disabled={prevurl === undefined}
-                        // Agar previous URL nahi hai to button disabled rahega
+    <button
+        disabled={!pokemonListState.prevurl}
+        // Agar previous URL nahi hai to button disabled rahega
+        onClick={() => {
+            const urltoset = pokemonListState.prevurl;
+            setpokemonListState({...pokemonListState, pokedexUrl: urltoset});
+        }}
+        // Previous button click hone par
+        // pokedexUrl ko previous URL se replace karenge
+    >
+        previous
+    </button>
 
-                        onClick={() => setPokedexUrl(prevurl)}
-                        // Previous button click hone par
-                        // pokedexUrl ko previous URL se replace karenge
-                    >
-                        previous
-                    </button>
 
+    <button
+        disabled={!pokemonListState.nexturl}
+        // Agar next URL nahi hai to button disabled rahega
+        onClick={() => {
+            const urltoset = pokemonListState.nexturl;
+            setpokemonListState({...pokemonListState, pokedexUrl: urltoset});
+        }}
+        // Next button click hone par
+        // pokedexUrl ko next URL se replace karenge
+    >
+        next
+    </button>
 
-                    <button
-                        disabled={nexturl === undefined}
-                        // Agar next URL nahi hai to button disabled rahega
-
-                        onClick={() => setPokedexUrl(nexturl)}
-                        // Next button click hone par
-                        // pokedexUrl ko next URL se replace karenge
-                    >
-                        next
-                    </button>
-
-                </div>
+</div>
 
             </div>
         </>
